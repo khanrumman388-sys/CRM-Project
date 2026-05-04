@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Advanced CRM</title>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, #0f172a, #1e293b);
+      color: white;
+    }
+
+    .container {
+      display: flex;
+    }
+
+    .sidebar {
+      width: 220px;
+      height: 100vh;
+      background: rgba(255,255,255,0.05);
+      backdrop-filter: blur(10px);
+      padding: 20px;
+    }
+
+    .sidebar h2 {
+      margin-bottom: 20px;
+    }
+
+    .sidebar ul li {
+      list-style: none;
+      margin: 15px 0;
+      cursor: pointer;
+    }
+
+    .main {
+      flex: 1;
+      padding: 20px;
+    }
+
+    .cards {
+      display: flex;
+      gap: 20px;
+      margin: 20px 0;
+    }
+
+    .card {
+      flex: 1;
+      padding: 20px;
+      border-radius: 15px;
+      background: rgba(255,255,255,0.05);
+      backdrop-filter: blur(10px);
+      transition: 0.3s;
+    }
+
+    .card:hover {
+      transform: scale(1.05);
+    }
+
+    .box {
+      margin-top: 20px;
+      padding: 20px;
+      border-radius: 15px;
+      background: rgba(255,255,255,0.05);
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: none;
+      border-radius: 10px;
+    }
+
+    button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 10px;
+      background: #38bdf8;
+      cursor: pointer;
+    }
+
+    .item {
+      background: rgba(255,255,255,0.05);
+      padding: 10px;
+      margin: 5px 0;
+      border-radius: 10px;
+      display: flex;
+      justify-content: space-between;
+    }
+  </style>
+
+</head>
+<body>
+
+<div class="container">
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <h2>CRM</h2>
+    <ul>
+      <li>Dashboard</li>
+      <li>Clients</li>
+      <li>Tasks</li>
+      <li>Revenue</li>
+    </ul>
+  </div>
+
+  <!-- Main -->
+  <div class="main">
+
+    <h1>Dashboard</h1>
+
+    <!-- Cards -->
+    <div class="cards">
+      <div class="card"> Clients <h2 id="clientCount">0</h2></div>
+      <div class="card"> Tasks <h2 id="taskCount">0</h2></div>
+      <div class="card"> Revenue <h2 id="revenueCount">$0</h2></div>
+    </div>
+
+    <!-- Add Client -->
+    <div class="box">
+      <h3>Add Client</h3>
+      <input type="text" id="clientName" placeholder="Client Name">
+      <button onclick="addClient()">Add</button>
+    </div>
+
+    <!-- Client List -->
+    <div class="box">
+      <h3>Clients</h3>
+      <div id="clientList"></div>
+    </div>
+
+    <!-- Add Task -->
+    <div class="box">
+      <h3>Add Task</h3>
+      <input type="text" id="taskName" placeholder="Task Name">
+      <button onclick="addTask()">Add</button>
+    </div>
+
+    <!-- Task List -->
+    <div class="box">
+      <h3>Tasks</h3>
+      <div id="taskList"></div>
+    </div>
+
+    <!-- Add Revenue -->
+    <div class="box">
+      <h3>Add Revenue</h3>
+      <input type="number" id="revenueAmount" placeholder="Amount">
+      <button onclick="addRevenue()">Add</button>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+
+let clients = JSON.parse(localStorage.getItem("clients")) || [];
+let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+let revenue = JSON.parse(localStorage.getItem("revenue")) || [];
+
+// CLIENT
+function addClient() {
+  let name = document.getElementById("clientName").value;
+  if (!name) return alert("Enter client name");
+
+  clients.push(name);
+  localStorage.setItem("clients", JSON.stringify(clients));
+  document.getElementById("clientName").value = "";
+  showAll();
+}
+
+// TASK
+function addTask() {
+  let task = document.getElementById("taskName").value;
+  if (!task) return alert("Enter task");
+
+  tasks.push(task);
+  localStorage.setItem("tasks", JSON.stringify(tasks));
+  document.getElementById("taskName").value = "";
+  showAll();
+}
+
+// REVENUE
+function addRevenue() {
+  let amount = document.getElementById("revenueAmount").value;
+  if (!amount) return alert("Enter amount");
+
+  revenue.push(Number(amount));
+  localStorage.setItem("revenue", JSON.stringify(revenue));
+  document.getElementById("revenueAmount").value = "";
+  showAll();
+}
+
+// SHOW
+function showAll() {
+
+  // Clients
+  let clientList = document.getElementById("clientList");
+  clientList.innerHTML = "";
+  clients.forEach((c, i) => {
+    clientList.innerHTML += `
+      <div class="item">
+        ${c}
+        <button onclick="deleteClient(${i})">❌</button>
+      </div>`;
+  });
+
+  // Tasks
+  let taskList = document.getElementById("taskList");
+  taskList.innerHTML = "";
+  tasks.forEach((t, i) => {
+    taskList.innerHTML += `
+      <div class="item">
+        ${t}
+        <button onclick="deleteTask(${i})">❌</button>
+      </div>`;
+  });
+
+  // Revenue total
+  let total = revenue.reduce((a, b) => a + b, 0);
+
+  document.getElementById("clientCount").innerText = clients.length;
+  document.getElementById("taskCount").innerText = tasks.length;
+  document.getElementById("revenueCount").innerText = "$" + total;
+}
+
+// DELETE
+function deleteClient(i) {
+  clients.splice(i, 1);
+  localStorage.setItem("clients", JSON.stringify(clients));
+  showAll();
+}
+
+function deleteTask(i) {
+  tasks.splice(i, 1);
+  localStorage.setItem("tasks", JSON.stringify(tasks));
+  showAll();
+}
+
+// LOAD
+showAll();
+
+</script>
+
+</body>
+</html>
